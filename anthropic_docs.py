@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # Filter only links under the Claude Code <ul> (not top nav)
     filtered_links = [
-        (a.get_text(strip=True), base_url + a["href"])
+        (a.get_text(strip=True), f"{base_url}{a["href"]}")
         for a in claude_links
         if a["href"].startswith("/en/docs/claude-code/")
     ]
