@@ -4,6 +4,8 @@ Claude Code
 
 # SDK
 
+Copy page
+
 Programmatically integrate Claude Code into your applications using the SDK.
 
 The Claude Code SDK allows developers to programmatically integrate Claude
@@ -13,6 +15,17 @@ Claude’s capabilities.
 
 The SDK currently support command line usage. TypeScript and Python SDKs are
 coming soon.
+
+##
+
+​
+
+Authentication
+
+To use the Claude Code SDK, we recommend creating a dedicated API key:
+
+  1. Create an Anthropic API key in the [Anthropic Console](https://console.anthropic.com/)
+  2. Then, set the `ANTHROPIC_API_KEY` environment variable. We recommend storing this key securely (eg. using a Github [secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions))
 
 ##
 
@@ -162,6 +175,93 @@ Note: When using MCP tools, you must explicitly allow them using the
 This security measure ensures that MCP tools are only used when explicitly
 permitted.
 
+###
+
+​
+
+Custom permission prompt tool
+
+Optionally, use `--permission-prompt-tool` to pass in an MCP tool that we will
+use to check whether or not the user grants the model permissions to invoke a
+given tool. When the model invokes a tool the following happens:
+
+  1. We first check permission settings: all [settings.json files](/en/docs/claude-code/settings), as well as `--allowedTools` and `--disallowedTools` passed into the SDK; if one of these allows or denies the tool call, we proceed with the tool call
+  2. Otherwise, we invoke the MCP tool you provided in `--permission-prompt-tool`
+
+The `--permission-prompt-tool` MCP tool is passed the tool name and input, and
+must return a JSON-stringified payload with the result. The payload must be
+one of:
+
+    
+    
+    // tool call is allowed
+    {
+      "behavior": "allow",
+      "updatedInput": {...}, // updated input, or just return back the original input
+    }
+    
+    // tool call is denied
+    {
+      "behavior": "deny",
+      "message": "..." // human-readable string explaining why the permission was denied
+    }
+    
+
+For example, a TypeScript MCP permission prompt tool implementation might look
+like this:
+
+    
+    
+    const server = new McpServer({
+      name: "Test permission prompt MCP Server",
+      version: "0.0.1",
+    });
+    
+    server.tool(
+      "approval_prompt",
+      'Simulate a permission check - approve if the input contains "allow", otherwise deny',
+      {
+        tool_name: z.string().describe("The tool requesting permission"),
+        input: z.object({}).passthrough().describe("The input for the tool"),
+      },
+      async ({ tool_name, input }) => {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                JSON.stringify(input).includes("allow")
+                  ? {
+                      behavior: "allow",
+                      updatedInput: input,
+                    }
+                  : {
+                      behavior: "deny",
+                      message: "Permission denied by test approval_prompt tool",
+                    }
+              ),
+            },
+          ],
+        };
+      }
+    );
+    
+
+To use this tool, add your MCP server (eg. with `--mcp-config`), then invoke
+the SDK like so:
+
+    
+    
+    claude -p "..." \
+      --permission-prompt-tool mcp__test-server__approval_prompt \
+      --mcp-config my-config.json
+    
+
+Usage notes:
+
+  * Use `updatedInput` to tell the model that the permission prompt mutated its input; otherwise, set `updatedInput` to the original input, as in the example above. For example, if the tool shows a file edit diff to the user and lets them edit the diff manually, the permission prompt tool should return that updated edit.
+  * The payload must be JSON-stringified
+
 ##
 
 ​
@@ -187,9 +287,9 @@ turns 3`
 `--append-system-prompt`| Append to system prompt (only with `--print`)|
 `claude --append-system-prompt "Custom instruction"`  
 `--allowedTools`| Comma/space-separated list of allowed tools (includes MCP
-tools)| `claude --allowedTools "Bash(npm install),mcp__filesystem__*"`  
+tools)| `claude --allowedTools "Bash(npm install),mcp__filesystem"`  
 `--disallowedTools`| Comma/space-separated list of denied tools| `claude
---disallowedTools "Bash(git commit),mcp__github__*"`  
+--disallowedTools "Bash(git commit),mcp__github"`  
 `--mcp-config`| Load MCP servers from a JSON file| `claude --mcp-config
 servers.json`  
 `--permission-prompt-tool`| MCP tool for handling permission prompts (only
@@ -278,18 +378,18 @@ following schema:
 
     
     
-    type Message =
+    type SDKMessage =
       // An assistant message
       | {
           type: "assistant";
-          message: APIAssistantMessage; // from Anthropic SDK
+          message: Message; // from Anthropic SDK
           session_id: string;
         }
     
       // A user message
       | {
           type: "user";
-          message: APIUserMessage; // from Anthropic SDK
+          message: MessageParam; // from Anthropic SDK
           session_id: string;
         }
     
@@ -334,6 +434,11 @@ following schema:
 We will soon publish these types in a JSONSchema-compatible format. We use
 semantic versioning for the main Claude Code package to communicate breaking
 changes to this format.
+
+`Message` and `MessageParam` types are available in Anthropic SDKs. For
+example, see the Anthropic
+[TypeScript](https://github.com/anthropics/anthropic-sdk-typescript) and
+[Python](https://github.com/anthropics/anthropic-sdk-python/) SDKs.
 
 ##
 
@@ -406,9 +511,6 @@ Session management
     # Continue with the same session
     $ claude -p --resume "$(cat session.txt)" "Add unit tests"
     
-    # List recent sessions
-    $ claude logs
-    
 
 ##
 
@@ -471,5 +573,5 @@ YesNo
 [GitHub Actions](/en/docs/claude-code/github-
 actions)[Tutorials](/en/docs/claude-code/tutorials)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

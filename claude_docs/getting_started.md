@@ -4,6 +4,8 @@ Claude Code
 
 # Getting started with Claude Code
 
+Copy page
+
 Learn how to install, authenticate, and start using Claude Code.
 
 ##
@@ -52,7 +54,7 @@ Install [NodeJS 18+](https://nodejs.org/en/download), then run:
 
 Do NOT use `sudo npm install -g` as this can lead to permission issues and
 security risks. If you encounter permission errors, see [configure Claude
-Code](/en/docs/claude-code/configuration#auto-updater-permission-options) for
+Code](/en/docs/claude-code/troubleshooting#linux-permission-issues) for
 recommended solutions.
 
 2
@@ -80,8 +82,8 @@ Complete authentication
 Claude Code offers multiple authentication options:
 
   1. **Anthropic Console** : The default option. Connect through the Anthropic Console and complete the OAuth process. Requires active billing at [console.anthropic.com](https://console.anthropic.com).
-  2. **Claude App (with Max plan)** : Subscribe to Claude’s [Max plan](https://www.anthropic.com/pricing) for a single subscription that includes both Claude Code and the web interface. Get more value at the same price point while managing your account in one place. Log in with your Claude.ai account. During launch, choose the option that matches your subscription type.
-  3. **Enterprise platforms** : Configure Claude Code to use [Amazon Bedrock or Google Vertex AI](/en/docs/claude-code/bedrock-vertex) for enterprise deployments with your existing cloud infrastructure.
+  2. **Claude App (with Pro or Max plan)** : Subscribe to Claude’s [Pro or Max plan](https://www.anthropic.com/pricing) for a unified subscription that includes both Claude Code and the web interface. Get more value at the same price point while managing your account in one place. Log in with your Claude.ai account. During launch, choose the option that matches your subscription type.
+  3. **Enterprise platforms** : Configure Claude Code to use [Amazon Bedrock or Google Vertex AI](/en/docs/claude-code/bedrock-vertex-proxies) for enterprise deployments with your existing cloud infrastructure.
 
 ##
 
@@ -131,5 +133,5 @@ YesNo
 [Overview](/en/docs/claude-code/overview)[Common tasks](/en/docs/claude-
 code/common-tasks)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

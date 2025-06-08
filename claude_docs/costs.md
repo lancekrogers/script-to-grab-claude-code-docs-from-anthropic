@@ -4,6 +4,8 @@ Claude Code
 
 # Manage costs effectively
 
+Copy page
+
 Learn how to track and optimize token usage and costs when using Claude Code.
 
 Claude Code consumes tokens for each interaction. The average cost is $6 per
@@ -19,7 +21,7 @@ Track your costs
   * **Anthropic Console users** :
     * Check [historical usage](https://support.anthropic.com/en/articles/9534590-cost-and-usage-reporting-in-console) in the Anthropic Console (requires Admin or Billing role)
     * Set [workspace spend limits](https://support.anthropic.com/en/articles/9796807-creating-and-managing-workspaces) for the Claude Code workspace (requires Admin role)
-  * **Max plan users** : Usage is included in your Max plan subscription
+  * **Pro and Max plan users** : Usage is included in your subscription
 
 ##
 
@@ -84,5 +86,5 @@ YesNo
 [Monitoring usage](/en/docs/claude-code/monitoring-usage)[GitHub
 Actions](/en/docs/claude-code/github-actions)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

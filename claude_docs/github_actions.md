@@ -4,6 +4,8 @@ Claude Code
 
 # GitHub Actions
 
+Copy page
+
 Integrate Claude Code with your GitHub workflows for automated code review, PR
 management, and issue triage.
 
@@ -71,31 +73,34 @@ creating tailored automation.
 
 Quick start
 
-If you’re using AWS Bedrock or Google Vertex AI, see the [Using with AWS
-Bedrock & Google Vertex AI](/_sites/docs.anthropic.com/en/docs/claude-
-code/github-actions#using-with-aws-bedrock-%26-google-vertex-ai) section for
-setup instructions.
+The easiest way to set up this action is through Claude Code in the terminal.
+Just open claude and run `/install-github-app`.
 
-To get started with Claude Code GitHub Actions, follow these steps:
+This command will guide you through setting up the GitHub app and required
+secrets.
+
+  * You must be a repository admin to install the GitHub app and add secrets
+  * This quickstart method is only available for direct Anthropic API users. If you’re using AWS Bedrock or Google Vertex AI, please see the [Using with AWS Bedrock & Google Vertex AI](/_sites/docs.anthropic.com/en/docs/claude-code/github-actions#using-with-aws-bedrock-%26-google-vertex-ai) section.
+
+###
+
+​
+
+If the setup script fails
+
+If the `/install-github-app` command fails or you prefer manual setup, please
+follow these manual setup instructions:
+
+  1. **Install the Claude GitHub app** to your repository: <https://github.com/apps/claude>
+  2. **Add ANTHROPIC_API_KEY** to your repository secrets ([Learn how to use secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions))
+  3. **Copy the workflow file** from [examples/claude.yml](https://github.com/anthropics/claude-code-action/blob/main/examples/claude.yml) into your repository’s `.github/workflows/`
 
 1
 
-Install GitHub App via Claude Code
-
-Open Claude Code and run `/install-github-app` in the repo you want to
-initialize Claude Code GitHub Actions in. This will:
-
-  * Install the Claude Code GitHub App to your selected org/repo
-  * Set up `.github/workflows` file
-  * Ask for your `ANTHROPIC_API_KEY`
-
-You must have admin privileges on the repo to complete this installation.
-
-2
-
 Test the action
 
-Test out the action by tagging `@claude` in an issue or PR comment!
+After completing either the quickstart or manual setup, test the action by
+tagging `@claude` in an issue or PR comment!
 
 ##
 
@@ -103,7 +108,10 @@ Test out the action by tagging `@claude` in an issue or PR comment!
 
 Example use cases
 
-Claude Code GitHub Actions can help you with a variety of tasks, including:
+Claude Code GitHub Actions can help you with a variety of tasks. For complete
+working examples, see the [examples
+directory](https://github.com/anthropics/claude-code-
+action/tree/main/examples).
 
 ###
 
@@ -178,37 +186,8 @@ Always use GitHub Secrets for API keys:
   * Limit action permissions to only what’s necessary
   * Review Claude’s suggestions before merging
 
-    
-    
-    # ✅ CORRECT - Uses GitHub secrets
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    
-    # ❌ WRONG - Exposes your API key
-    anthropic_api_key: "sk-ant-..."
-    
-
-**Use explicit tools for better security:**
-
-When configuring `allowed_tools`, avoid wildcard patterns and instead
-explicitly list the specific commands Claude can use:
-
-    
-    
-    # ✅ RECOMMENDED - Explicit commands for better security
-    allowed_tools: [
-      "Bash(git status)",
-      "Bash(git log)",
-      "Bash(git diff)",
-      "View",
-      "GlobTool"
-    ]
-    
-    # ❌ LESS SECURE - Allows any git command
-    allowed_tools: "Bash(git:*),View,GlobTool"
-    
-
-This approach ensures Claude can only execute the specific commands you’ve
-authorized, reducing potential security risks.
+Always use GitHub Secrets (e.g., `${{ secrets.ANTHROPIC_API_KEY }}`) rather
+than hardcoding API keys directly in your workflow files.
 
 ###
 
@@ -251,115 +230,17 @@ When using Claude Code GitHub Actions, be aware of the associated costs:
 
 Configuration examples
 
-This section provides ready-to-use workflow configurations for different use
-cases:
+For ready-to-use workflow configurations for different use cases, including:
 
-  * [Basic workflow setup](/_sites/docs.anthropic.com/en/docs/claude-code/github-actions#basic-workflow-setup) \- The default configuration for issue and PR comments
-  * [Code review on pull requests](/_sites/docs.anthropic.com/en/docs/claude-code/github-actions#code-review-on-pull-requests) \- Automated code reviews on new PRs
+  * Basic workflow setup for issue and PR comments
+  * Automated code reviews on pull requests
+  * Custom implementations for specific needs
 
-###
+Visit the [examples directory](https://github.com/anthropics/claude-code-
+action/tree/main/examples) in the Claude Code Action repository.
 
-​
-
-Basic workflow setup
-
-This is the default workflow created by the installer. It enables Claude to
-respond to `@claude` mentions in issues and PR comments:
-
-    
-    
-    name: Claude PR Creation
-    on:
-      issue_comment:
-        types: [created]  # Triggers when someone comments on an issue or PR
-    
-    jobs:
-      create-pr:
-        # Only run if the comment mentions @claude
-        if: contains(github.event.comment.body, '@claude')
-        runs-on: ubuntu-latest
-        steps:
-          - uses: anthropics/claude-code-action@beta
-            with:
-              # Pass the comment text as the prompt
-              prompt: "${{ github.event.comment.body }}"
-    
-              # Define which tools Claude can use
-              allowed_tools: [
-                # Git inspection commands (read-only)
-                "Bash(git status)",
-                "Bash(git log)",
-                "Bash(git show)",
-                "Bash(git blame)",
-                "Bash(git reflog)",
-                "Bash(git stash list)",
-                "Bash(git ls-files)",
-                "Bash(git branch)",
-                "Bash(git tag)",
-                "Bash(git diff)",
-    
-                # File exploration tools
-                "View",        # Read file contents
-                "GlobTool",    # Find files by pattern
-                "GrepTool",    # Search file contents
-                "BatchTool"    # Run multiple tools in parallel
-              ]
-    
-              # Your Anthropic API key (stored as a GitHub secret)
-              anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    
-
-This workflow responds to issue comments, allowing Claude to understand
-context from the issue description and previous comments.
-
-###
-
-​
-
-Code review on pull requests
-
-This workflow automatically reviews code changes when a PR is opened or
-updated:
-
-    
-    
-    name: Claude Code Review
-    
-    on:
-      pull_request:
-        types: [opened, synchronize]  # Runs on new PRs and updates
-    
-    jobs:
-      code-review:
-        runs-on: ubuntu-latest
-        steps:
-          # Check out the code to allow git diff operations
-          - name: Checkout code
-            uses: actions/checkout@v4
-            with:
-              fetch-depth: 0  # Fetch full history for accurate diffs
-    
-          - name: Run Code Review with Claude
-            id: code-review
-            uses: anthropics/claude-code-action@beta
-            with:
-              # Define the review focus areas
-              prompt: "Review the PR changes. Focus on code quality, potential bugs, and performance issues. Suggest improvements where appropriate."
-    
-              # Limited tools for safer review operations
-              allowed_tools: [
-                "Bash(git diff --name-only HEAD~1)",  # List changed files
-                "Bash(git diff HEAD~1)",              # See actual changes
-                "View",                               # Read file contents
-                "GlobTool",                          # Find related files
-                "GrepTool"                           # Search for patterns
-              ]
-    
-              anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    
-
-For more focused reviews, customize the prompt to check specific aspects like
-security, performance, or compliance with your coding standards.
+The examples repository includes complete, tested workflows that you can copy
+directly into your `.github/workflows/` directory.
 
 ##
 
@@ -540,7 +421,11 @@ Add Required Secrets
 Add the following secrets to your repository (Settings → Secrets and variables
 → Actions):
 
-#### For Anthropic API (Direct):
+####
+
+​
+
+For Anthropic API (Direct):
 
   1. **For API Authentication** :
 
@@ -550,7 +435,11 @@ Add the following secrets to your repository (Settings → Secrets and variables
      * `APP_ID`: Your GitHub App’s ID
      * `APP_PRIVATE_KEY`: The private key (.pem) content
 
-#### For Google Cloud Vertex AI:
+####
+
+​
+
+For Google Cloud Vertex AI
 
   1. **For GCP Authentication** :
 
@@ -561,7 +450,11 @@ Add the following secrets to your repository (Settings → Secrets and variables
      * `APP_ID`: Your GitHub App’s ID
      * `APP_PRIVATE_KEY`: The private key (.pem) content
 
-#### For AWS Bedrock:
+####
+
+​
+
+For AWS Bedrock
 
   1. **For AWS Authentication** :
 
@@ -644,7 +537,7 @@ Secret Name| Description
               timeout_minutes: "60"
               github_token: ${{ steps.app-token.outputs.token }}
               use_bedrock: "true"
-              anthropic_model: "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+              model: "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
     
 
 The model ID format for Bedrock includes the region prefix (e.g.,
@@ -715,7 +608,7 @@ Secret Name| Description
               timeout_minutes: "60"
               github_token: ${{ steps.app-token.outputs.token }}
               use_vertex: "true"
-              anthropic_model: "claude-3-7-sonnet@20250219"
+              model: "claude-3-7-sonnet@20250219"
             env:
               ANTHROPIC_VERTEX_PROJECT_ID: ${{ steps.auth.outputs.project_id }}
               CLOUD_ML_REGION: us-east5
@@ -779,7 +672,6 @@ Parameter| Description| Required
 ---|---|---  
 `prompt`| The prompt to send to Claude| Yes*  
 `prompt_file`| Path to file containing prompt| Yes*  
-`allowed_tools`| Array of allowed tools| No  
 `anthropic_api_key`| Anthropic API key| Yes**  
 `max_turns`| Maximum conversation turns| No  
 `timeout_minutes`| Execution timeout| No  
@@ -823,5 +715,5 @@ YesNo
 
 [Costs](/en/docs/claude-code/costs)[SDK](/en/docs/claude-code/sdk)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

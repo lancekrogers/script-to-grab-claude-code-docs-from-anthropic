@@ -4,6 +4,8 @@ Claude Code
 
 # Core tasks and workflows
 
+Copy page
+
 Explore Claude Code’s powerful features for editing, searching, testing, and
 automating your development workflow.
 
@@ -78,8 +80,8 @@ For complex problems, explicitly ask Claude to think more deeply:
     > think hard about the edge cases in our authentication flow
     
 
-Claude Code will show when Claude (3.7 Sonnet) is using extended thinking. You
-can proactively prompt Claude to “think” or “think deeply” for more planning-
+Claude Code will show when the model is using extended thinking. You can
+proactively prompt Claude to “think” or “think deeply” for more planning-
 intensive tasks. We suggest that you first tell Claude about your task and let
 it gather context from your project. Then, ask it to “think” to create a plan.
 
@@ -119,5 +121,5 @@ YesNo
 [Getting started](/en/docs/claude-code/getting-started)[CLI
 usage](/en/docs/claude-code/cli-usage)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

@@ -4,35 +4,27 @@ Claude Code
 
 # Claude Code settings
 
+Copy page
+
 Learn how to configure Claude Code with global and project-level settings,
 themes, and environment variables.
 
 Claude Code offers a variety of settings to configure its behavior to meet
-your needs. You can configure Claude Code by running `claude config` in your
-terminal, or the `/config` command when using the interactive REPL.
+your needs. You can configure Claude Code by running the `/config` command
+when using the interactive REPL.
 
 ##
 
 ​
 
-Configuration hierarchy
+Settings files
 
-The new `settings.json` file is our official mechanism for configuring Claude
-Code through hierarchical settings.
+The new `settings.json` file format is our official mechanism for configuring
+Claude Code through hierarchical settings:
 
-User settings are defined in `~/.claude/settings.json` and apply to all
-projects.
-
-Project settings are saved in your project directory under
-`.claude/settings.json` for shared settings, and `.claude/settings.local.json`
-for local project settings. Claude Code will configure git to ignore
-`.claude/settings.local.json` when it is created.
-
-For enterprise deployments of Claude Code, we also support enterprise managed
-policy settings. These take precedence over user and project settings. System
-administrators can deploy policies to `/Library/Application
-Support/ClaudeCode/policies.json` on macOS and `/etc/claude-
-code/policies.json` on Linux and Windows via WSL.
+  * **User settings** are defined in `~/.claude/settings.json` and apply to all projects.
+  * **Project settings** are saved in your project directory under `.claude/settings.json` for shared settings, and `.claude/settings.local.json` for local project settings. Claude Code will configure git to ignore `.claude/settings.local.json` when it is created.
+  * For enterprise deployments of Claude Code, we also support **enterprise managed policy settings**. These take precedence over user and project settings. System administrators can deploy policies to `/Library/Application Support/ClaudeCode/policies.json` on macOS and `/etc/claude-code/policies.json` on Linux and Windows via WSL.
 
 Example settings.json
 
@@ -60,87 +52,39 @@ Example settings.json
 
 ​
 
+Available settings
+
+`settings.json` supports a number of options:
+
+Key| Description| Example  
+---|---|---  
+`apiKeyHelper`| Custom script, to be executed in `/bin/sh`, to generate an
+auth value. This value will generally be sent as `X-Api-Key`, `Authorization:
+Bearer`, and `Proxy-Authorization: Bearer` headers for model requests|
+`/bin/generate_temp_api_key.sh`  
+`cleanupPeriodDays`| How long to locally retain chat transcripts (default: 30
+days)| `20`  
+`env`| Environment variables that will be applied to every session| `{"FOO":
+"bar"}`  
+`includeCoAuthoredBy`| Whether to include the `co-authored-by Claude` byline
+in git commits and pull requests (default: `true`)| `false`  
+`permissions`| `allow` and `deny` keys are a list of [permission
+rules](/_sites/docs.anthropic.com/en/docs/claude-code/settings#permissions)|
+`{"allow": [ "Bash(npm run lint)" ]}`  
+  
+###
+
+​
+
 Settings precedence
 
-Settings are applied in order of precedence, with later sources overriding
-previous sources:
+Settings are applied in order of precedence:
 
-  * User settings
-  * Shared project settings
-  * Local project settings
-  * Command line arguments
-  * Enterprise policies
-
-##
-
-​
-
-Configuration options
-
-Claude Code supports global and project-level configuration.
-
-To manage your configurations, use the following commands:
-
-  * List settings: `claude config list`
-  * See a setting: `claude config get <key>`
-  * Change a setting: `claude config set <key> <value>`
-  * Push to a setting (for lists): `claude config add <key> <value>`
-  * Remove from a setting (for lists): `claude config remove <key> <value>`
-
-By default `config` changes your project configuration. To manage your global
-configuration, use the `--global` (or `-g`) flag.
-
-###
-
-​
-
-Global configuration
-
-To set a global configuration, use `claude config set -g <key> <value>`:
-
-Key| Value| Description  
----|---|---  
-`autoUpdaterStatus`| `disabled` or `enabled`| Enable or disable the auto-
-updater (default: `enabled`)  
-`env`| JSON (eg. `'{"FOO": "bar"}'`)| Environment variables that will be
-applied to every session  
-`preferredNotifChannel`| `iterm2`, `iterm2_with_bell`, `terminal_bell`, or
-`notifications_disabled`| Where you want to receive notifications (default:
-`iterm2`)  
-`theme`| `dark`, `light`, `light-daltonized`, or `dark-daltonized`| Color
-theme  
-`verbose`| `true` or `false`| Whether to show full bash and command outputs
-(default: `false`)  
-  
-###
-
-​
-
-Project configuration
-
-Manage project configuration with `claude config set <key> <value>` (without
-the `-g` flag):
-
-Key| Value| Description  
----|---|---  
-`allowedTools`| array of tools| Which tools can run without manual approval  
-`ignorePatterns`| array of glob strings| Which files/directories are ignored
-when using tools  
-  
-For example:
-
-    
-    
-    # Let npm test to run without approval
-    claude config add allowedTools "Bash(npm test)"
-    
-    # Let npm test and any of its sub-commands to run without approval
-    claude config add allowedTools "Bash(npm test:*)"
-    
-    # Instruct Claude to ignore node_modules
-    claude config add ignorePatterns node_modules
-    claude config add ignorePatterns "node_modules/**"
-    
+  1. Enterprise policies
+  2. Command line arguments
+  3. Local project settings
+  4. Shared project settings
+  5. User settings
 
 ##
 
@@ -148,55 +92,79 @@ For example:
 
 Permissions
 
-You can manage Claude Code’s tool permissions with `/allowed-tools`. This UI
-lists all permission rules and the settings.json file they are sourced from.
+You can view & manage Claude Code’s tool permissions with `/permissions`. This
+UI lists all permission rules and the settings.json file they are sourced
+from.
 
   * **Allow** rules will allow Claude Code to use the specified tool without further manual approval.
   * **Deny** rules will prevent Claude Code from using the specified tool. Deny rules take precedence over allow rules.
 
-Permission rules use the format: `Tool(optional-specifier)`.
+Permission rules use the format: `Tool(optional-specifier)`
 
-For example, adding `WebFetch` to the list of allow rules would allow any use
-of the web fetch tool without requiring user approval. See the list of [tools
-available to Claude](/en/docs/claude-code/security#tools-available-to-claude)
-(use the name in parentheses when provided.)
+A rule that is just the tool name matched any use of that tool. For example,
+adding `Bash` to the list of allow rules would allow Claude Code to use the
+Bash tool without requiring user approval. See the list of [tools available to
+Claude](security#tools-available-to-claude).
+
+###
+
+​
+
+Tool-specific permission rules
 
 Some tools use the optional specifier for more fine-grained permission
-controls. For example, an allow rule with `WebFetch(domain:example.com)` would
-allow fetches to example.com but not other URLs.
+controls. For example, an allow rule with `Bash(git diff:*)` would allow Bash
+commands that start with `git diff`. The following tools support permission
+rules with specifiers:
 
-Bash rules can be exact matches like `Bash(npm run build)`, or prefix matches
-when they end with `:*` like `Bash(npm run test:*)`
+####
 
-`Read()` and `Edit()` rules follow the [gitignore](https://git-
-scm.com/docs/gitignore) specification. Patterns are resolved relative to the
-directory containing `.claude/settings.json`. To reference an absolute path,
-use `//`. For a path relative to your home directory, use `~/`. For example
-`Read(//tmp/build_cache)` or `Edit(~/.zshrc)`. Claude will also make a best-
-effort attempt to apply Read and Edit rules to other file-related tools like
-Grep, Glob, and LS.
+​
 
-MCP tool names follow the format: `mcp__server_name__tool_name` where:
+Bash
 
-  * `server_name` is the name of the MCP server as configured in Claude Code
-  * `tool_name` is the specific tool provided by that server
+  * `Bash(npm run build)` Matches the exact Bash command `npm run build`
+  * `Bash(npm run test:*)` Matches Bash commands starting with `npm run test`.
 
-More examples:
-
-Rule| Description  
----|---  
-`Bash(npm run build)`| Matches the exact Bash command `npm run build`.  
-`Bash(npm run test:*)`| Matches Bash commands starting with `npm run test`.
-See note below about command separator handling.  
-`Edit(~/.zshrc)`| Matches the `~/.zshrc` file.  
-`Read(node_modules/**)`| Matches any `node_modules` directory.  
-`mcp__puppeteer__puppeteer_navigate`| Matches the `puppeteer_navigate` tool
-from the `puppeteer` MCP server.  
-`WebFetch(domain:example.com)`| Matches fetch requests to example.com  
-  
-Claude Code is aware of command separators (like `&&`) so a prefix match rule
+Claude Code is aware of shell operators (like `&&`) so a prefix match rule
 like `Bash(safe-cmd:*)` won’t give it permission to run the command `safe-cmd
 && other-cmd`
+
+####
+
+​
+
+Read & Edit
+
+`Edit` rules apply to all built-in tools that edit files. Claude will make a
+best-effort attempt to apply `Read` rules to all built-in tools that read
+files like Grep, Glob, and LS.
+
+Read & Edit rules both follow the [gitignore](https://git-
+scm.com/docs/gitignore) specification. Patterns are resolved relative to the
+directory containing `.claude/settings.json`. To reference an absolute path,
+use `//`. For a path relative to your home directory, use `~/`.
+
+  * `Edit(docs/**)` Matches edits to files in the `docs` directory of your project
+  * `Read(~/.zshrc)` Matches reads to your `~/.zshrc` file
+  * `Edit(//tmp/scratch.txt)` Matches edits to `/tmp/scratch.txt`
+
+####
+
+​
+
+WebFetch
+
+  * `WebFetch(domain:example.com)` Matches fetch requests to example.com
+
+####
+
+​
+
+MCP
+
+  * `mcp__puppeteer` Matches any tool provided by the `puppeteer` server (name configured in Claude Code)
+  * `mcp__puppeteer__puppeteer_navigate` Matches the `puppeteer_navigate` tool provided by the `puppeteer` server
 
 ##
 
@@ -257,12 +225,9 @@ using the recommended option above.
 Disabling the auto-updater
 
 If you prefer to disable the auto-updater instead of fixing permissions, you
-can use:
-
-    
-    
-    claude config set -g autoUpdaterStatus disabled
-    
+can set the `DISABLE_AUTOUPDATER` [environment
+variable](/_sites/docs.anthropic.com/en/docs/claude-code/settings#environment-
+variables) to `1`
 
 ##
 
@@ -350,7 +315,7 @@ For iTerm 2 alerts when tasks complete:
 
   1. Open iTerm 2 Preferences
   2. Navigate to Profiles → Terminal
-  3. Enable “Silence bell” and “Send notification when idle”
+  3. Enable “Silence bell” and Filter Alerts → “Send escape sequence-generated alerts”
   4. Set your preferred notification delay
 
 Note that these notifications are specific to iTerm 2 and not available in the
@@ -392,19 +357,103 @@ Environment variables
 Claude Code supports the following environment variables to control its
 behavior:
 
+All environment variables can also be configured in
+[`settings.json`](/_sites/docs.anthropic.com/en/docs/claude-
+code/settings#available-settings). This is useful as a way to automatically
+set environment variables for each session, or to roll out a set of
+environment variables for your whole team or organization.
+
 Variable| Purpose  
 ---|---  
+`ANTHROPIC_API_KEY`| API key sent as `X-Api-Key` header, typically for the
+Claude SDK (for interactive usage, run `/login`)  
+`ANTHROPIC_AUTH_TOKEN`| Custom value for the `Authorization` and `Proxy-
+Authorization` headers (the value you set here will be prefixed with `Bearer
+`)  
+`ANTHROPIC_CUSTOM_HEADERS`| Custom headers you want to add to the request (in
+`Name: Value` format)  
+`ANTHROPIC_MODEL`| Name of custom model to use (see [Model
+Configuration](/en/docs/claude-code/bedrock-vertex-proxies#model-
+configuration))  
+`ANTHROPIC_SMALL_FAST_MODEL`| Name of [Haiku-class model for background
+tasks](/en/docs/claude-code/costs)  
+`BASH_DEFAULT_TIMEOUT_MS`| Default timeout for long-running bash commands  
+`BASH_MAX_TIMEOUT_MS`| Maximum timeout the model can set for long-running bash
+commands  
+`BASH_MAX_OUTPUT_LENGTH`| Maximum number of characters in bash outputs before
+they are middle-truncated  
+`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`| Interval in milliseconds at which
+credentials should be refreshed (when using `apiKeyHelper`)  
+`CLAUDE_CODE_MAX_OUTPUT_TOKENS`| Set the maximum number of output tokens for
+most requests  
+`CLAUDE_CODE_USE_BEDROCK`| Use Bedrock (see [Bedrock &
+Vertex](/en/docs/claude-code/bedrock-vertex-proxies))  
+`CLAUDE_CODE_USE_VERTEX`| Use Vertex (see [Bedrock & Vertex](/en/docs/claude-
+code/bedrock-vertex-proxies))  
+`CLAUDE_CODE_SKIP_BEDROCK_AUTH`| Skip AWS authentication for Bedrock (e.g.
+when using an LLM gateway)  
+`CLAUDE_CODE_SKIP_VERTEX_AUTH`| Skip Google authentication for Vertex (e.g.
+when using an LLM gateway)  
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`| Equivalent of setting
+`DISABLE_AUTOUPDATER`, `DISABLE_BUG_COMMAND`, `DISABLE_ERROR_REPORTING`, and
+`DISABLE_TELEMETRY`  
 `DISABLE_AUTOUPDATER`| Set to `1` to disable the automatic updater  
 `DISABLE_BUG_COMMAND`| Set to `1` to disable the `/bug` command  
 `DISABLE_COST_WARNINGS`| Set to `1` to disable cost warning messages  
 `DISABLE_ERROR_REPORTING`| Set to `1` to opt out of Sentry error reporting  
+`DISABLE_NON_ESSENTIAL_MODEL_CALLS`| Set to `1` to disable model calls for
+non-critical paths like flavor text  
 `DISABLE_TELEMETRY`| Set to `1` to opt out of Statsig telemetry (note that
 Statsig events do not include user data like code, file paths, or bash
 commands)  
 `HTTP_PROXY`| Specify HTTP proxy server for network connections  
 `HTTPS_PROXY`| Specify HTTPS proxy server for network connections  
+`MAX_THINKING_TOKENS`| Force a thinking for the model budget  
 `MCP_TIMEOUT`| Timeout in milliseconds for MCP server startup  
 `MCP_TOOL_TIMEOUT`| Timeout in milliseconds for MCP tool execution  
+  
+##
+
+​
+
+Configuration options
+
+We are in the process of migration global configuration to `settings.json`.
+
+`claude config` will be deprecated in place of
+[settings.json](/_sites/docs.anthropic.com/en/docs/claude-
+code/settings#settings-files)
+
+To manage your configurations, use the following commands:
+
+  * List settings: `claude config list`
+  * See a setting: `claude config get <key>`
+  * Change a setting: `claude config set <key> <value>`
+  * Push to a setting (for lists): `claude config add <key> <value>`
+  * Remove from a setting (for lists): `claude config remove <key> <value>`
+
+By default `config` changes your project configuration. To manage your global
+configuration, use the `--global` (or `-g`) flag.
+
+###
+
+​
+
+Global configuration
+
+To set a global configuration, use `claude config set -g <key> <value>`:
+
+Key| Description| Example  
+---|---|---  
+`autoUpdaterStatus`| Enable or disable the auto-updater (default: `enabled`)|
+`disabled`  
+`preferredNotifChannel`| Where you want to receive notifications (default:
+`iterm2`)| `iterm2`, `iterm2_with_bell`, `terminal_bell`, or
+`notifications_disabled`  
+`theme`| Color theme| `dark`, `light`, `light-daltonized`, or `dark-
+daltonized`  
+`verbose`| Whether to show full bash and command outputs (default: `false`)|
+`true`  
   
 Was this page helpful?
 
@@ -413,5 +462,5 @@ YesNo
 [Memory management](/en/docs/claude-code/memory)[Security](/en/docs/claude-
 code/security)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

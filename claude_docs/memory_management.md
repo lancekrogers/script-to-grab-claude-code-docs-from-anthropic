@@ -4,6 +4,8 @@ Claude Code
 
 # Manage Claude's memory
 
+Copy page
+
 Learn how to manage Claude Code’s memory across sessions with different memory
 locations and best practices.
 
@@ -124,8 +126,8 @@ Was this page helpful?
 
 YesNo
 
-[CLI usage](/en/docs/claude-code/cli-usage)[Settings](/en/docs/claude-
-code/settings)
+[IDE integrations](/en/docs/claude-code/ide-
+integrations)[Settings](/en/docs/claude-code/settings)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

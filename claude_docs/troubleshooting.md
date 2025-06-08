@@ -4,6 +4,8 @@ Claude Code
 
 # Troubleshooting
 
+Copy page
+
 Solutions for common issues with Claude Code installation and usage.
 
 ##
@@ -19,7 +21,7 @@ Common installation issues
 Linux permission issues
 
 When installing Claude Code with npm, you may encounter permission errors if
-your npm global prefix is not user writable (eg. `/usr`, or `/use/local`).
+your npm global prefix is not user writable (eg. `/usr`, or `/usr/local`).
 
 ####
 
@@ -175,12 +177,9 @@ solution](/_sites/docs.anthropic.com/en/docs/claude-
 code/troubleshooting#recommended-solution-create-a-user-writable-npm-prefix)
 above to fix this.
 
-If you prefer to disable the auto-updater instead, you can use:
-
-    
-    
-    claude config set -g autoUpdaterStatus disabled
-    
+If you prefer to disable the auto-updater instead, you can use: If you prefer
+to disable the auto-updater instead , you can set the `DISABLE_AUTOUPDATER`
+[environment variable](settings#environment-variables) to `1`
 
 ##
 
@@ -195,16 +194,8 @@ Permissions and authentication
 Repeated permission prompts
 
 If you find yourself repeatedly approving the same commands, you can allow
-specific tools to run without approval:
-
-    
-    
-    # Let npm test run without approval
-    claude config add allowedTools "Bash(npm test)"
-    
-    # Let npm test and any of its sub-commands run without approval
-    claude config add allowedTools "Bash(npm test:*)"
-    
+specific tools to run without approval using the `/permissions` command. See
+[Permissions docs](settings#permissions).
 
 ###
 
@@ -295,7 +286,8 @@ Was this page helpful?
 
 YesNo
 
-[Tutorials](/en/docs/claude-code/tutorials)
+[Tutorials](/en/docs/claude-code/tutorials)[Overview](/en/docs/claude-
+code/third-party-integrations)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

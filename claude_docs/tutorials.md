@@ -4,6 +4,8 @@ Claude Code
 
 # Tutorials
 
+Copy page
+
 Practical examples and patterns for effectively using Claude Code in your
 development workflow.
 
@@ -666,7 +668,7 @@ Bootstrap a CLAUDE.md for your codebase
   * Include frequently used commands (build, test, lint) to avoid repeated searches
   * Document code style preferences and naming conventions
   * Add important architectural patterns specific to your project
-  * CLAUDE.md memories can be used for both instructions shared with your team and for your individual preferences. For more details, see [Managing Claude’s memory](/en/docs/agents-and-tools/claude-code/overview#manage-claudes-memory).
+  * CLAUDE.md memories can be used for both instructions shared with your team and for your individual preferences.
 
 * * *
 
@@ -1258,9 +1260,11 @@ Create a new worktree
 
     
     
-    # Create a new worktree with a new branch git worktree add
-    ../project-feature-a feature-a # Or create a worktree with an existing
-    branch git worktree add ../project-bugfix bugfix-123 
+    # Create a new worktree with a new branch 
+    git worktree add ../project-feature-a -b feature-a
+    
+    # Or create a worktree with an existing branch
+    git worktree add ../project-bugfix bugfix-123
     
 
 This creates a new directory with a separate working copy of your repository.
@@ -1272,7 +1276,10 @@ Run Claude Code in each worktree
     
     
     # Navigate to your worktree 
-    cd ../project-feature-a # Run Claude Code in this isolated environment claude 
+    cd ../project-feature-a
+    
+    # Run Claude Code in this isolated environment
+    claude
     
 
 4
@@ -1281,7 +1288,8 @@ In another terminal:
 
     
     
-    cd ../project-bugfix claude
+    cd ../project-bugfix
+    claude
     
 
 5
@@ -1290,8 +1298,11 @@ Manage your worktrees
 
     
     
-    # List all worktrees git worktree list # Remove a worktree when done
-    git worktree remove ../project-feature-a 
+    # List all worktrees
+    git worktree list
+    
+    # Remove a worktree when done
+    git worktree remove ../project-feature-a
     
 
 **Tips:**
@@ -1325,5 +1336,5 @@ YesNo
 [SDK](/en/docs/claude-code/sdk)[Troubleshooting](/en/docs/claude-
 code/troubleshooting)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

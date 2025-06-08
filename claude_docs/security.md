@@ -4,6 +4,8 @@ Claude Code
 
 # Manage permissions and security
 
+Copy page
+
 Learn about Claude Code’s permission system, tools access, and security
 safeguards.
 
@@ -29,15 +31,19 @@ Tool| Description| Permission Required
 ---|---|---  
 **Agent**|  Runs a sub-agent to handle complex, multi-step tasks| No  
 **Bash**|  Executes shell commands in your environment| Yes  
+**Edit**|  Makes targeted edits to specific files| Yes  
 **Glob**|  Finds files based on pattern matching| No  
 **Grep**|  Searches for patterns in file contents| No  
 **LS**|  Lists files and directories| No  
-**Read**|  Reads the contents of files| No  
-**Edit**|  Makes targeted edits to specific files| Yes  
-**Write**|  Creates or overwrites files| Yes  
+**MultiEdit**|  Performs multiple edits on a single file atomically| Yes  
 **NotebookEdit**|  Modifies Jupyter notebook cells| Yes  
 **NotebookRead**|  Reads and displays Jupyter notebook contents| No  
+**Read**|  Reads the contents of files| No  
+**TodoRead**|  Reads the current session’s task list| No  
+**TodoWrite**|  Creates and manages structured task lists| No  
 **WebFetch**|  Fetches content from a specified URL| Yes  
+**WebSearch**|  Performs web searches with domain filtering| Yes  
+**Write**|  Creates or overwrites files| Yes  
   
 Permission rules can be configured using `/allowed-tools` or in [permission
 settings](/en/docs/claude-code/settings#permissions).
@@ -170,8 +176,8 @@ Was this page helpful?
 
 YesNo
 
-[Settings](/en/docs/claude-code/settings)[Monitoring usage](/en/docs/claude-
-code/monitoring-usage)
+[Settings](/en/docs/claude-code/settings)[Team setup](/en/docs/claude-
+code/team)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

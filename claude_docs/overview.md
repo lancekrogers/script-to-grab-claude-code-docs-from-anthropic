@@ -1,142 +1,222 @@
 # Overview
 
-Claude Code
+Third-party integrations
 
-# Claude Code overview
+# Overview
 
-Learn about Claude Code, an agentic coding tool made by Anthropic. Currently
-in beta as a research preview.
+Copy page
 
-Claude Code is an agentic coding tool that lives in your terminal, understands
-your codebase, and helps you code faster through natural language commands. By
-integrating directly with your development environment, Claude Code
-streamlines your workflow without requiring additional servers or complex
-setup.
-
-    
-    
-    npm install -g @anthropic-ai/claude-code
-    
-
-Claude Code’s key capabilities include:
-
-  * Editing files and fixing bugs across your codebase
-  * Answering questions about your code’s architecture and logic
-  * Executing and fixing tests, linting, and other commands
-  * Searching through git history, resolving merge conflicts, and creating commits and PRs
-  * Works with [Amazon Bedrock and Google Vertex AI](/en/docs/claude-code/bedrock-vertex) for enterprise deployments
-
-**Research preview**
-
-Code is in beta as a research preview. We’re gathering developer feedback on
-AI collaboration preferences, which workflows benefit most from AI assistance,
-and how to improve the agent experience.
-
-This early version will evolve based on user feedback. We plan to enhance tool
-execution reliability, support for long-running commands, terminal rendering,
-and Claude’s self-knowledge of its capabilities in the coming weeks.
-
-Report bugs directly with the `/bug` command or through our [GitHub
-repository](https://github.com/anthropics/claude-code).
+Claude Code can integrate with various third-party services and infrastructure
+to meet enterprise requirements. This page provides an overview of available
+integration options and helps you choose the right configuration for your
+organization.
 
 ##
 
 ​
 
-Why Claude Code?
+Provider comparison
 
-Claude Code operates directly in your terminal, understanding your project
-context and taking real actions. No need to manually add files to context -
-Claude will explore your codebase as needed. Claude Code uses
-`claude-3-7-sonnet-20250219` by default.
+Feature| Anthropic| Amazon Bedrock| Google Vertex AI  
+---|---|---|---  
+Regions| Supported [countries](https://www.anthropic.com/supported-countries)|
+Multiple AWS
+[regions](https://docs.aws.amazon.com/bedrock/latest/userguide/models-
+regions.html)| Multiple GCP [regions](https://cloud.google.com/vertex-
+ai/generative-ai/docs/learn/locations)  
+Prompt caching| Enabled by default| Contact AWS for enablement| Contact Google
+for enablement  
+Authentication| API key| AWS credentials (IAM)| GCP credentials (OAuth/Service
+Account)  
+Cost tracking| Dashboard| AWS Cost Explorer| GCP Billing  
+Enterprise features| Teams, usage monitoring| IAM policies, CloudTrail| IAM
+roles, Cloud Audit Logs  
+  
+##
+
+​
+
+Integration options
 
 ###
 
 ​
 
-Enterprise integration
+Cloud providers
 
-Claude Code seamlessly integrates with enterprise AI platforms. You can
-connect to [Amazon Bedrock or Google Vertex AI](/en/docs/claude-code/bedrock-
-vertex) for secure, compliant deployments that meet your organization’s
-requirements.
+## [Amazon BedrockUse Claude models through AWS infrastructure with IAM-based
+authentication and AWS-native monitoring](/en/docs/claude-code/amazon-
+bedrock)## [Google Vertex AIAccess Claude models via Google Cloud Platform
+with enterprise-grade security and compliance](/en/docs/claude-code/google-
+vertex-ai)
 
 ###
 
 ​
 
-Security and privacy by design
+Corporate infrastructure
 
-Your code’s security is paramount. Claude Code’s architecture ensures:
-
-  * **Direct API connection** : Your queries go straight to Anthropic’s API without intermediate servers
-  * **Works where you work** : Operates directly in your terminal
-  * **Understands context** : Maintains awareness of your entire project structure
-  * **Takes action** : Performs real operations like editing files and creating commits
+## [Corporate ProxyConfigure Claude Code to work with your organization’s
+proxy servers and SSL/TLS requirements](/en/docs/claude-code/corporate-
+proxy)## [LLM GatewayDeploy centralized model access with usage tracking,
+budgeting, and audit logging](/en/docs/claude-code/llm-gateway)
 
 ##
 
 ​
 
-Getting started
+Mixing and matching settings
 
-To get started with Claude Code, follow our [installation
-guide](/en/docs/claude-code/getting-started) which covers system requirements,
-installation steps, and authentication process.
+Claude Code supports flexible configuration options that allow you to combine
+different providers and infrastructure:
+
+Understand the difference between:
+
+  * **Corporate proxy** : An HTTP/HTTPS proxy for routing traffic (set via `HTTPS_PROXY` or `HTTP_PROXY`)
+  * **LLM Gateway** : A service that handles authentication and provides provider-compatible endpoints (set via `ANTHROPIC_BASE_URL`, `ANTHROPIC_BEDROCK_BASE_URL`, or `ANTHROPIC_VERTEX_BASE_URL`)
+
+Both configurations can be used in tandem.
+
+###
+
+​
+
+Using Bedrock with corporate proxy
+
+Route Bedrock traffic through a corporate HTTP/HTTPS proxy:
+
+    
+    
+    # Enable Bedrock
+    export CLAUDE_CODE_USE_BEDROCK=1
+    export AWS_REGION=us-east-1
+    
+    # Configure corporate proxy
+    export HTTPS_PROXY='https://proxy.example.com:8080'
+    
+
+###
+
+​
+
+Using Bedrock with LLM Gateway
+
+Use a gateway service that provides Bedrock-compatible endpoints:
+
+    
+    
+    # Enable Bedrock
+    export CLAUDE_CODE_USE_BEDROCK=1
+    
+    # Configure LLM gateway
+    export ANTHROPIC_BEDROCK_BASE_URL='https://your-llm-gateway.com/bedrock'
+    export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1  # If gateway handles AWS auth
+    
+
+###
+
+​
+
+Using Vertex AI with corporate proxy
+
+Route Vertex AI traffic through a corporate HTTP/HTTPS proxy:
+
+    
+    
+    # Enable Vertex
+    export CLAUDE_CODE_USE_VERTEX=1
+    export CLOUD_ML_REGION=us-east5
+    export ANTHROPIC_VERTEX_PROJECT_ID=your-project-id
+    
+    # Configure corporate proxy
+    export HTTPS_PROXY='https://proxy.example.com:8080'
+    
+
+###
+
+​
+
+Using Vertex AI with LLM Gateway
+
+Combine Google Vertex AI models with an LLM gateway for centralized
+management:
+
+    
+    
+    # Enable Vertex
+    export CLAUDE_CODE_USE_VERTEX=1
+    
+    # Configure LLM gateway
+    export ANTHROPIC_VERTEX_BASE_URL='https://your-llm-gateway.com/vertex'
+    export CLAUDE_CODE_SKIP_VERTEX_AUTH=1  # If gateway handles GCP auth
+    
+
+###
+
+​
+
+Authentication configuration
+
+Claude Code uses the `ANTHROPIC_AUTH_TOKEN` for both `Authorization` and
+`Proxy-Authorization` headers when needed. The `SKIP_AUTH` flags
+(`CLAUDE_CODE_SKIP_BEDROCK_AUTH`, `CLAUDE_CODE_SKIP_VERTEX_AUTH`) are used in
+LLM gateway scenarios where the gateway handles provider authentication.
 
 ##
 
 ​
 
-Quick tour
+Choosing the right integration
 
-Here’s what you can accomplish with Claude Code:
-
-###
-
-​
-
-From questions to solutions in seconds
-
-    
-    
-    # Ask questions about your codebase
-    claude
-    > how does our authentication system work?
-    
-    # Create a commit with one command
-    claude commit
-    
-    # Fix issues across multiple files
-    claude "fix the type errors in the auth module"
-    
+Consider these factors when selecting your integration approach:
 
 ###
 
 ​
 
-Understand unfamiliar code
+Direct provider access
 
-    
-    
-    > what does the payment processing system do?
-    > find where user permissions are checked
-    > explain how the caching layer works
-    
+Best for organizations that:
+
+  * Want the simplest setup
+  * Have existing AWS or GCP infrastructure
+  * Need provider-native monitoring and compliance
 
 ###
 
 ​
 
-Automate Git operations
+Corporate proxy
 
-    
-    
-    > commit my changes
-    > create a pr
-    > which commit added tests for markdown back in December?
-    > rebase on main and resolve any merge conflicts
-    
+Best for organizations that:
+
+  * Have existing corporate proxy requirements
+  * Need traffic monitoring and compliance
+  * Must route all traffic through specific network paths
+
+###
+
+​
+
+LLM Gateway
+
+Best for organizations that:
+
+  * Need usage tracking across teams
+  * Want to dynamically switch between models
+  * Require custom rate limiting or budgets
+  * Need centralized authentication management
+
+##
+
+​
+
+Debugging
+
+When debugging your third-party integration configuration:
+
+  * Use the `claude /status` [slash command](/en/docs/claude-code/cli-usage#slash-command). This command provides observability into any applied authentication, proxy, and URL settings.
+  * Set environment variable `export ANTHROPIC_LOG=debug` to log requests.
 
 ##
 
@@ -144,90 +224,18 @@ Automate Git operations
 
 Next steps
 
-## [Getting startedInstall Claude Code and get up and
-running](/en/docs/claude-code/getting-started)## [Core featuresExplore what
-Claude Code can do for you](/en/docs/claude-code/common-tasks)##
-[CommandsLearn about CLI commands and controls](/en/docs/claude-
-code/commands)## [ConfigurationCustomize Claude Code for your
-workflow](/en/docs/claude-code/configuration)
-
-##
-
-​
-
-Additional resources
-
-## [Claude Code tutorialsStep-by-step guides for common
-tasks](/en/docs/claude-code/tutorials)## [TroubleshootingSolutions for common
-issues with Claude Code](/en/docs/claude-code/troubleshooting)## [Bedrock &
-Vertex integrationsConfigure Claude Code with Amazon Bedrock or Google Vertex
-AI](/en/docs/claude-code/bedrock-vertex)## [Reference implementationClone our
-development container reference
-implementation.](https://github.com/anthropics/claude-
-code/tree/main/.devcontainer)
-
-##
-
-​
-
-License and data usage
-
-Claude Code is provided as a Beta research preview under Anthropic’s
-[Commercial Terms of Service](https://www.anthropic.com/legal/commercial-
-terms).
-
-###
-
-​
-
-How we use your data
-
-We aim to be fully transparent about how we use your data. We may use feedback
-to improve our products and services, but we will not train generative models
-using your feedback from Claude Code. Given their potentially sensitive
-nature, we store user feedback transcripts for only 30 days.
-
-####
-
-​
-
-Feedback transcripts
-
-If you choose to send us feedback about Claude Code, such as transcripts of
-your usage, Anthropic may use that feedback to debug related issues and
-improve Claude Code’s functionality (e.g., to reduce the risk of similar bugs
-occurring in the future). We will not train generative models using this
-feedback.
-
-###
-
-​
-
-Privacy safeguards
-
-We have implemented several safeguards to protect your data, including limited
-retention periods for sensitive information, restricted access to user session
-data, and clear policies against using feedback for model training.
-
-For full details, please review our [Commercial Terms of
-Service](https://www.anthropic.com/legal/commercial-terms) and [Privacy
-Policy](https://www.anthropic.com/legal/privacy).
-
-###
-
-​
-
-License
-
-© Anthropic PBC. All rights reserved. Use is subject to Anthropic’s
-[Commercial Terms of Service](https://www.anthropic.com/legal/commercial-
-terms).
+  * [Set up Amazon Bedrock](/en/docs/claude-code/amazon-bedrock) for AWS-native integration
+  * [Configure Google Vertex AI](/en/docs/claude-code/google-vertex-ai) for GCP deployment
+  * [Implement Corporate Proxy](/en/docs/claude-code/corporate-proxy) for network requirements
+  * [Deploy LLM Gateway](/en/docs/claude-code/llm-gateway) for enterprise management
+  * [Settings](/en/docs/claude-code/settings) for configuration options and environment variables
 
 Was this page helpful?
 
 YesNo
 
-[Getting started](/en/docs/claude-code/getting-started)
+[Troubleshooting](/en/docs/claude-code/troubleshooting)[Amazon
+Bedrock](/en/docs/claude-code/amazon-bedrock)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 

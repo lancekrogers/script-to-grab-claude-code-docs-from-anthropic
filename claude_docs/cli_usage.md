@@ -4,6 +4,8 @@ Claude Code
 
 # CLI usage and controls
 
+Copy page
+
 Learn how to use Claude Code from the command line, including CLI commands,
 flags, and slash commands.
 
@@ -52,7 +54,6 @@ function"`
 errors"`  
 `claude -r "<session-id>" "query"`| Resume session by ID| `claude -r "abc123"
 "Finish this PR"`  
-`claude config`| Configure settings| `claude config set --global theme dark`  
 `claude update`| Update to latest version| `claude update`  
 `claude mcp`| Configure Model Context Protocol servers| [See MCP section in
 tutorials](/en/docs/claude-code/tutorials#set-up-model-context-protocol-mcp)  
@@ -67,15 +68,25 @@ Customize Claude Code’s behavior with these command-line flags:
 
 Flag| Description| Example  
 ---|---|---  
-`--print`, `-p`| Print response without interactive mode (see [detailed print
-mode documentation](/_sites/docs.anthropic.com/en/docs/claude-code/cli-
-usage#print-mode-details) below)| `claude -p "query"`  
+`--allowedTools`| A list of tools that should be allowed without prompting the
+user for permission, in addition to [settings.json files](/en/docs/claude-
+code/settings)| `"Bash(git log:*)" "Bash(git diff:*)" "Write"`  
+`--disallowedTools`| A list of tools that should be disallowed without
+prompting the user for permission, in addition to [settings.json
+files](/en/docs/claude-code/settings)| `"Bash(git log:*)" "Bash(git diff:*)"
+"Write"`  
+`--print`, `-p`| Print response without interactive mode (see [SDK
+documentation](/en/docs/claude-code/sdk) for programmatic usage details)|
+`claude -p "query"`  
 `--output-format`| Specify output format for print mode (options: `text`,
 `json`, `stream-json`)| `claude -p "query" --output-format json`  
 `--verbose`| Enable verbose logging, shows full turn-by-turn output (helpful
 for debugging in both print and interactive modes)| `claude --verbose`  
 `--max-turns`| Limit the number of agentic turns in non-interactive mode|
 `claude -p --max-turns 3 "query"`  
+`--model`| Sets the model for the current session with an alias for the latest
+model (`sonnet` or `opus`) or a model’s full name| `claude --model claude-
+sonnet-4-20250514`  
 `--permission-prompt-tool`| Specify an MCP tool to handle permission prompts
 in non-interactive mode| `claude -p --permission-prompt-tool mcp_auth_tool
 "query"`  
@@ -89,168 +100,9 @@ mode| `claude --resume abc123 "query"`
 The `--output-format json` flag is particularly useful for scripting and
 automation, allowing you to parse Claude’s responses programmatically.
 
-###
-
-​
-
-Print mode details
-
-The `-p` (or `--print`) flag enables non-interactive mode in Claude Code,
-allowing you to pipe input and output for programmatic use. This flag supports
-various output formats for different use cases.
-
-####
-
-​
-
-Basic usage
-
-    
-    
-    # Basic print mode - outputs just the final response text
-    claude -p "Explain how to use the print flag"
-    
-    # With stdin input
-    echo "What is 2+2?" | claude -p
-    
-    # Resume a session in print mode with a prompt
-    claude -p --resume <session-id> "Resume session with this prompt"
-    
-
-####
-
-​
-
-Output formats
-
-The `--output-format` option (used with `-p`) supports three formats:
-
-##### 1\. Text Output (default)
-
-    
-    
-    claude -p "Explain the output formats"
-    # Outputs just the response text
-    
-
-##### 2\. JSON Output
-
-    
-    
-    claude -p --output-format json "Explain how to use JSON output"
-    
-
-Outputs a structured JSON object:
-
-    
-    
-    {
-      "cost_usd": 0.003,
-      "duration_ms": 1234,
-      "duration_api_ms": 800,
-      "result": "The response text here...",
-      "session_id": "abc123"
-    }
-    
-
-##### 3\. Streaming JSON Output
-
-    
-    
-    claude -p --output-format stream-json "Create a Python script"
-    
-
-In streaming mode, each message is output as a separate JSON object as it’s
-received:
-
-  * Tool use messages
-  * Assistant text messages
-  * Tool result messages
-  * Final system message with stats
-
-####
-
-​
-
-Verbose output with print mode
-
-When using `--verbose` with `-p`, it must be paired with `--output-format
-json` or `--output-format stream-json`:
-
-    
-    
-    claude -p --verbose --output-format json "Debug this code"
-    
-
-In verbose JSON mode, the output includes the full conversation transcript:
-
-    
-    
-    [
-      {
-        "role": "user",
-        "content": "Debug this code"
-      },
-      {
-        "role": "assistant",
-        "content": "I'll help you debug that code..."
-      },
-      {
-        "role": "system",
-        "cost_usd": 0.003,
-        "duration_ms": 1234,
-        "duration_api_ms": 800,
-        "result": "The response text here...",
-        "session_id": "abc123"
-      }
-    ]
-    
-
-####
-
-​
-
-Additional options for print mode
-
-##### Max Turns
-
-    
-    
-    claude -p --max-turns 3 "Fix this code" < file.py
-    
-
-Limits the number of agentic turns in non-interactive mode.
-
-##### Permission Prompt Tool
-
-    
-    
-    claude -p --permission-prompt-tool mcp_auth_tool "Create a file"
-    
-
-Specifies an MCP tool to handle permission prompts in non-interactive mode.
-
-##### Resume Session
-
-    
-    
-    claude -p --resume abc123 "Resume session with this prompt"
-    
-
-Resume a specific session by ID in print mode with a new prompt.
-
-####
-
-​
-
-Continue Session
-
-    
-    
-    claude -c -p "Continue with this next task"
-    
-
-Continue the last conversation in this project.
+For detailed information about print mode (`-p`) including output formats,
+streaming, verbose logging, and programmatic usage, see the [SDK
+documentation](/en/docs/claude-code/sdk).
 
 ##
 
@@ -274,6 +126,8 @@ instructions
 `/login`| Switch Anthropic accounts  
 `/logout`| Sign out from your Anthropic account  
 `/memory`| Edit CLAUDE.md memory files  
+`/model`| Select or change the AI model  
+`/permissions`| View or update [permissions](settings#permissions)  
 `/pr_comments`| View pull request comments  
 `/review`| Request code review  
 `/status`| View account and system statuses  
@@ -350,8 +204,8 @@ Was this page helpful?
 
 YesNo
 
-[Common tasks](/en/docs/claude-code/common-tasks)[Memory
-management](/en/docs/claude-code/memory)
+[Common tasks](/en/docs/claude-code/common-tasks)[IDE
+integrations](/en/docs/claude-code/ide-integrations)
 
-[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)
+[x](https://x.com/AnthropicAI)[linkedin](https://www.linkedin.com/company/anthropicresearch)[discord](https://www.anthropic.com/discord)
 
